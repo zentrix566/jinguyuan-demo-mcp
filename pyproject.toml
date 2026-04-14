@@ -1,0 +1,20 @@
+[project]
+name = "wifi-query-mcp"
+version = "0.1.0"
+description = "MCP skill for querying WiFi password"
+authors = [
+  { name = "AfterAfter", email = "afterafter@example.com" }
+]
+license = { text = "MIT" }
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "mcp>=1.0.0",
+  "fastapi>=0.100.0",
+  "uvicorn>=0.23.2",
+  "pydantic>=2.0.0",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"

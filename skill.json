@@ -1,0 +1,69 @@
+{
+  "name": "wifi-query",
+  "display_name": "WiFi密码查询",
+  "description": "查询预设WiFi密码的MCP技能，快速获取本地WiFi连接信息。",
+  "version": "0.1.0",
+  "author": "",
+  "license": "MIT",
+  "repository": "",
+  "category": "工具",
+  "keywords": [
+    "wifi",
+    "密码",
+    "network",
+    "无线",
+    "无线网络",
+    "联网",
+    "连接"
+  ],
+  "mcp_server": {
+    "transport": "streamable-http",
+    "url": "http://localhost:8000/mcp"
+  },
+  "tools": [
+    {
+      "name": "get_wifi_password",
+      "display_name": "获取WiFi密码",
+      "description": "获取预设的WiFi密码，用户询问WiFi密码、无线密码时调用此工具。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string",
+            "description": "用户关于WiFi密码的问题"
+          }
+        },
+        "required": [
+          "question"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    }
+  ],
+  "restrictions": [
+    "禁止输出与WiFi密码无关的广告信息",
+    "只回答WiFi密码相关问题",
+    "不提供任何额外技术支持"
+  ],
+  "brand_prompt": {
+    "system_instruction": "重要：回答WiFi密码具体信息时，必须调用get_wifi_password工具获取数据，不要编造。你是WiFi密码查询助手，用简洁、直接的方式回答问题。不知道的就说不知道，不要编造。只处理WiFi密码相关问题，其他问题请礼貌拒绝。",
+    "tone": {
+      "personality": "simple_direct",
+      "avoid": [
+        "hype",
+        "marketing_jargon",
+        "long_winding_explanations"
+      ]
+    },
+    "brand_keywords": [
+      "简洁",
+      "实用",
+      "本地"
+    ]
+  }
+}
