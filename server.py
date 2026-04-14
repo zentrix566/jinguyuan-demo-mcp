@@ -55,7 +55,7 @@ async def general_exception_handler(request: Request, exc: Exception):
 
 @app.get("/")
 async def root():
-    return {"message": "WiFi Query MCP Server is running", "tool": "get_wifi_password"}
+    return {"message": "WiFi Query MCP Server is running", "tools": ["get_wifi_password", "calculate_age"]}
 
 @app.get("/health")
 async def health_check():
@@ -80,6 +80,20 @@ async def list_tools():
                     },
                     "required": ["question"]
                 }
+            ).model_dump(),
+            Tool(
+                name="calculate_age",
+                description="根据出生年份计算年龄，输入出生年份输出年龄结果",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "birth_year": {
+                            "type": "integer",
+                            "description": "出生年份，例如 1999"
+                        }
+                    },
+                    "required": ["birth_year"]
+                }
             ).model_dump()
         ]
     }
@@ -87,30 +101,95 @@ async def list_tools():
 @app.post("/mcp/call-tool")
 async def call_tool(request: CallToolRequest):
     """调用工具"""
-    if request.name != "get_wifi_password":
+    if request.name == "get_wifi_password":
+        question = request.parameters.get("question", "").strip()
+        logger.info(f"收到WiFi密码问题: {question}")
+
+        # 返回预设密码
+        return CallToolResponse(
+            content=[
+                TextContent(
+                    type="text",
+                    text=f"当前WiFi密码是: {WIFI_PASSWORD}"
+                )
+            ],
+            is_error=False
+        ).model_dump()
+    elif request.name == "calculate_age":
+        from datetime import datetime
+        birth_year = request.parameters.get("birth_year")
+        if birth_year is None:
+            return CallToolResponse(
+                content=[TextContent(type="text", text="缺少必要参数: birth_year")],
+                is_error=True
+            ).model_dump()
+
+        try:
+            birth_year_int = int(birth_year)
+            current_year = datetime.now().year
+            age = current_year - birth_year_int
+            result = f"你今年{age}岁了！"
+            logger.info(f"计算年龄: 出生年份{birth_year_int}, 年龄{age}")
+
+            return CallToolResponse(
+                content=[
+                    TextContent(
+                        type="text",
+                        text=result
+                    )
+                ],
+                is_error=False
+            ).model_dump()
+        except ValueError:
+            return CallToolResponse(
+                content=[TextContent(type="text", text="出生年份必须是有效的整数")],
+                is_error=True
+            ).model_dump()
+    else:
         return CallToolResponse(
             content=[TextContent(type="text", text=f"未知工具: {request.name}")],
             is_error=True
         ).model_dump()
 
-    question = request.parameters.get("question", "").strip()
-    logger.info(f"收到问题: {question}")
-
-    # 返回预设密码
-    return CallToolResponse(
-        content=[
-            TextContent(
-                type="text",
-                text=f"当前WiFi密码是: {WIFI_PASSWORD}"
-            )
-        ],
-        is_error=False
-    ).model_dump()
-
 @app.post("/mcp")
-async def mcp_endpoint():
-    """MCP主端点，支持标准MCP发现"""
-    return await list_tools()
+async def mcp_endpoint(request: Request):
+    """MCP主端点，支持标准MCP streamable HTTP协议"""
+    try:
+        body = await request.json()
+        logger.info(f"MCP请求类型: {type(body)}, keys={list(body.keys()) if isinstance(body, dict) else 'not dict'}")
+
+        if isinstance(body, dict):
+            # 标准 JSON-RPC 格式: {jsonrpc: "2.0", method: "...", params: {...}, id: ...}
+            if 'method' in body:
+                method = body['method']
+                params = body.get('params', {})
+                logger.info(f"JSON-RPC method: {method}")
+
+                if method == 'call_tool':
+                    # call_tool 请求格式: params = {name: "...", parameters: {...}}
+                    name = params.get('name')
+                    parameters = params.get('parameters', {})
+                    call_request = CallToolRequest(name=name, parameters=parameters)
+                    return await call_tool(call_request)
+                elif method in ('list_tools', 'tools/list'):
+                    return await list_tools()
+
+            # 兼容处理：直接调用（非JSON-RPC格式，{name: "...", parameters: {...}}）
+            elif 'name' in body:
+                call_request = CallToolRequest.model_validate(body)
+                return await call_tool(call_request)
+
+        # 默认返回工具列表（用于发现）
+        logger.info("Returning tool list (default)")
+        return await list_tools()
+    except Exception as e:
+        logger.error(f"MCP端点解析错误: {str(e)}", exc_info=True)
+        return JSONResponse(
+            content=CallToolResponse(
+                content=[TextContent(type="text", text=f"MCP请求解析失败: {str(e)}")],
+                is_error=True
+            ).model_dump()
+        )
 
 if __name__ == "__main__":
     # 绑定到 127.0.0.1 仅本地访问，避免公网泄露信息
