@@ -1,9 +1,9 @@
 [project]
-name = "wifi-query-mcp"
-version = "0.1.0"
-description = "MCP skill for querying WiFi password"
+name = "jinguyuan-demo-mcp"
+version = "0.2.0"
+description = "MCP demo server for Jinguyuan Dumpling Restaurant, provides WiFi password, menu, queue status"
 authors = [
-  { name = "AfterAfter", email = "afterafter@example.com" }
+  { name = "zentrix566", email = "zentrix566@gmail.com" }
 ]
 license = { text = "MIT" }
 readme = "README.md"

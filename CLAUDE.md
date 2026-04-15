@@ -1,10 +1,10 @@
-# WiFi Query MCP Server - Claude Development Guide
+# 金谷园饺子馆 MCP 演示服务器 - Claude Development Guide
 
 ## Project Overview
 
-This is a simple MCP (Model Context Protocol) server that provides three tools for Claude:
-- `get_wifi_password` - Retrieve a pre-configured WiFi password
-- `get_menu` - Get restaurant main menu
+This is a demo MCP (Model Context Protocol) server imitating Jinguyuan Dumpling Restaurant scenario. It provides three tools for Claude:
+- `get_wifi_password` - Retrieve store WiFi password
+- `get_menu` - Get today's main menu
 - `get_queue_status` - Get current queue count and estimated wait time
 
 Configuration is stored in `config.json` and supports **hot reload** - changes take effect on next request without server restart.

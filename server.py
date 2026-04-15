@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-WiFi密码查询 MCP 服务器
-当用户询问WiFi密码时，返回预设密码 123789
+金谷园饺子馆 MCP 演示服务器
+演示MCP协议，提供WiFi密码查询、菜单查询、排队状态查询
 """
 
 import os
@@ -38,7 +38,7 @@ if not logger.handlers:
     logger.addHandler(handler)
     logger.propagate = True
 
-app = FastAPI(title="WiFi Query MCP Server", version="0.2.0")
+app = FastAPI(title="Jinguyuan Dumpling MCP Demo", version="0.2.0")
 
 # 配置默认值
 DEFAULT_CONFIG = {
@@ -108,7 +108,7 @@ async def general_exception_handler(request: Request, exc: Exception):
 @app.get("/")
 async def root():
     return {
-        "message": "WiFi Query MCP Server is running",
+        "message": "Jinguyuan Dumpling MCP Demo Server is running",
         "tools": ["get_wifi_password", "get_menu", "get_queue_status"]
     }
 

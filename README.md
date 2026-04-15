@@ -1,6 +1,10 @@
-# WiFi Password Query MCP Server
+# 金谷园饺子馆 MCP 演示服务器
 
-一个简单的 MCP (Model Context Protocol) 服务器，提供 WiFi 密码查询、餐厅菜单查询、排队状态查询。
+这是一个演示 [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) 的示例项目，模仿金谷园饺子馆场景，提供三个实用工具：
+
+- `get_wifi_password` - 查询店内WiFi密码
+- `get_menu` - 查询今日主要菜单
+- `get_queue_status` - 查询当前排队人数和预计等待时间
 
 ## 功能
 
@@ -33,7 +37,14 @@ python server.py
 
 ### 配置说明
 
-所有配置都在 `config.json`：
+项目提供示例配置 `config.json.example`，复制一份修改成你自己的配置：
+
+```bash
+cp config.json.example config.json
+# 编辑 config.json 修改配置
+```
+
+配置文件内容：
 
 ```json
 {
@@ -60,6 +71,8 @@ python server.py
 | `queue.minutes_per_person` | 每人预估等待分钟 |
 
 **热加载特性**：修改 `config.json` 后无需重启服务，下次请求自动读取新配置。
+
+> 注意：`config.json` 不会被 Git 跟踪（已加入 `.gitignore`），你的私有配置不会被提交到仓库。
 
 ### 环境变量
 
@@ -176,11 +189,13 @@ python server.py
 ## 项目结构
 
 ```
-├── server.py       # 主程序
-├── config.json     # 配置文件（热加载）
-├── requirements.txt
-├── skill.json      # Claude Code Skill 定义
-├── skill.md        # Claude Code Skill 文档
+├── server.py             # 主程序（MCP服务器）
+├── config.json.example   # 配置示例
+├── config.json           # 你的本地配置（热加载，已加入.gitignore）
+├── requirements.txt      # Python依赖
+├── skill.json            # Claude Code Skill 定义
+├── skill.md              # Claude Code Skill 文档
+├── test_client.py        # 本地测试脚本
 └── README.md
 ```
 
